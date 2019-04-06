@@ -29,7 +29,10 @@ def walk(transitions):
     chain.append(item)
     while item != "end":
         options = transitions[item]
-        item = options[random.randint(0, len(options) - 1)]
+        if len(options) > 1:
+            item = options[random.randint(0, len(options) - 1)]
+        elif len(options) == 1:
+            item = options[0]
         chain.append(item)
     return chain[1:len(chain)-1]
 
@@ -47,7 +50,6 @@ if __name__ == "__main__":
     transitions = calc_transitions(content)
     calc_possible_phrases(transitions)
 
-    # Generate a couple of phrases:
     print(walk(transitions))
     print(walk(transitions))
     print(walk(transitions))
