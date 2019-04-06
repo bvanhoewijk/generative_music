@@ -163,10 +163,7 @@ def create_song(music_file, phrases):
                     MyMIDI.addNote(
                         track, channel, int(noteNumber(n)), time, duration, volume
                     )
-                    print(
-                        "MyMIDI.addNote(%s, %s, %s, %s, %s, %s)"
-                        % (track, channel, int(noteNumber(n)), time, duration, volume)
-                    )
+
         phrasecount += 1
 
     with open(music_file, "wb") as output_file:
@@ -176,15 +173,21 @@ def create_song(music_file, phrases):
 if __name__ == "__main__":
     music_file = "new_song.mid"
     phrasesWithIndex = phrases_from_json("data/instructions.json")
-
-    transitions = calc_transitions(phrasesWithIndex)
-    calc_possible_phrases(transitions)
-
+    
     new_phrases = list()
-    for _ in range(50):
-        new_phrases.append(walk(transitions))
+    for phrase in phrasesWithIndex:
+        new_phrases.append(phrase[1:len(phrase)-1])
+    # for phrase in phrasesWithIndex:
+    #     print(" ".join(phrase))
 
-    print(new_phrases)
+    # transitions = calc_transitions(phrasesWithIndex)
+    # calc_possible_phrases(transitions)
+
+    # new_phrases = list()
+    # for _ in range(50):
+    #     new_phrases.append(walk(transitions))
+
+    # print(new_phrases)
     create_song(music_file, new_phrases)
 
     play_song(music_file)

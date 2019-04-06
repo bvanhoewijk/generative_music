@@ -33,6 +33,6 @@ And generates a couple of phrases based on the input (it does not compute all po
     <meta message end_of_track time=0>
 
 ## TODO:
-- check timing
+- check timing / duration of notes
 - try this one: from mxm.midifile import MidiOutFile
 
