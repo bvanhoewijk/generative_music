@@ -34,19 +34,19 @@ def walk(transitions):
         elif len(options) == 1:
             item = options[0]
         chain.append(item)
-    return chain
+    return chain[1:len(chain)-1]
 
 
 def calc_possible_phrases(transitions):
     """Calculate the amount of possible phrases."""
     total = 1
     for item in transitions:
-        total *= len(transitions[item])
+        total *= len(set(transitions[item]))
     print("Total possible phrases: %s" % total)
 
 
 if __name__ == "__main__":
-    content = load_song_txt("small.txt")
+    content = load_song_txt("data/small.txt")
     transitions = calc_transitions(content)
     calc_possible_phrases(transitions)
 
