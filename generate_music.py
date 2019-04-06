@@ -21,6 +21,7 @@ DELIMITER = ","
 
 
 def phrases_from_json(jsonfile):
+    """Parse the JSON file and create phrases"""
     with open(jsonfile, "r") as midi:
         data = midi.read()
 
@@ -91,6 +92,7 @@ def calc_possible_phrases(transitions):
 
 
 def noteName(noteNumber):
+    """Notenumber to Notename"""
     noteNumber -= 21
     notes = ["A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#"]
     octave = math.ceil(noteNumber / 12)
@@ -99,6 +101,7 @@ def noteName(noteNumber):
 
 
 def noteNumber(noteName):
+    """Notename to Notenumber"""
     notes = ["A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#"]
     note = noteName[0]
     octave = int(noteName[1]) - 1
@@ -108,20 +111,8 @@ def noteNumber(noteName):
     return index + octave * 12 + 21
 
 
-def play_music(music_file):
-    """
-    stream music with mixer.music module in blocking manner
-    this will stream the sound from disk while playing
-    """
-    pygame.mixer.music.load(music_file)
-    clock = pygame.time.Clock()
-    pygame.mixer.music.play()
-    # check if playback has finished
-    while pygame.mixer.music.get_busy():
-        clock.tick(30)
-
-
 def play_song(music_file):
+    """Play a midi song"""
     freq = 44100  # audio CD quality
     bitsize = -16  # unsigned 16 bit
     channels = 2  # 1 is mono, 2 is stereo
@@ -134,7 +125,12 @@ def play_song(music_file):
 
     try:
         # use the midi file object from memory
-        play_music(music_file)
+        pygame.mixer.music.load(music_file)
+        clock = pygame.time.Clock()
+        pygame.mixer.music.play()
+        # check if playback has finished
+        while pygame.mixer.music.get_busy():
+            clock.tick(30)
     except KeyboardInterrupt:
         # if user hits Ctrl/C then exit
         # (works only in console mode)
@@ -142,7 +138,9 @@ def play_song(music_file):
         pygame.mixer.music.stop()
         raise SystemExit
 
+
 def create_song(music_file, phrases):
+    """Create a song using the calculated phrases and a file name"""
     track = 0
     channel = 0
     time = 0  # In beats
@@ -175,11 +173,8 @@ def create_song(music_file, phrases):
         MyMIDI.writeFile(output_file)
 
 
-
 if __name__ == "__main__":
-    # print(noteNumber("E4"))
     music_file = "new_song.mid"
-
     phrasesWithIndex = phrases_from_json("data/instructions.json")
 
     transitions = calc_transitions(phrasesWithIndex)

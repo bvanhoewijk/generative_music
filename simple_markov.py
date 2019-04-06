@@ -29,10 +29,7 @@ def walk(transitions):
     chain.append(item)
     while item != "end":
         options = transitions[item]
-        if len(options) > 1:
-            item = options[random.randint(0, len(options) - 1)]
-        elif len(options) == 1:
-            item = options[0]
+        item = options[random.randint(0, len(options) - 1)]
         chain.append(item)
     return chain[1:len(chain)-1]
 
