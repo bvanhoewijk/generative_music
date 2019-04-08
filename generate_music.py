@@ -36,7 +36,16 @@ def phrases_from_json(jsonfile):
                 notes,
             )
         )
-        names = list(map(lambda x: x["name"] + ":" + str(round(x["duration"], 2)) + ":" + str(round(x["velocity"], 2)), names))
+        names = list(
+            map(
+                lambda x: x["name"]
+                + ":"
+                + str(round(x["duration"], 2))
+                + ":"
+                + str(round(x["velocity"], 2)),
+                names,
+            )
+        )
         names.sort()
         eigthNotes.append(DELIMITER.join(names))
 
@@ -56,7 +65,7 @@ def phrases_from_json(jsonfile):
     phrasesWithIndex = list(
         map(lambda phrase: ["start"] + phrase + ["end"], phrasesWithIndex)
     )
-    
+
     return phrasesWithIndex
 
 
@@ -123,7 +132,7 @@ def play_song(music_file):
     pygame.mixer.music.set_volume(0.8)
     pygame.mixer.music.load(music_file)
     pygame.mixer.music.play()
-    
+
     try:
         # use the midi file object from memory
         pygame.mixer.music.load(music_file)
@@ -170,7 +179,7 @@ def create_song(music_file, phrases):
                         int(noteNumber(note_name)),
                         time,
                         float(duration),
-                        int(volume*float(velocity)),
+                        int(volume * float(velocity)),
                     )
         phrasecount += 1
 
@@ -181,7 +190,7 @@ def create_song(music_file, phrases):
 def play_original():
     music_file = "new_song.mid"
     phrasesWithIndex = phrases_from_json("data/instructions.json")
-    
+
     new_phrases = list()
     for phrase in phrasesWithIndex:
         new_phrases.append(phrase[1 : len(phrase) - 1])
@@ -189,6 +198,7 @@ def play_original():
     create_song(music_file, new_phrases)
 
     play_song(music_file)
+
 
 if __name__ == "__main__":
     play_original()
