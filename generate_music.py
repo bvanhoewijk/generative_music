@@ -1,6 +1,5 @@
-import midiutil
+import sys
 from midiutil import MIDIFile
-from mido import MidiFile
 from pprint import pprint
 import time
 import math
@@ -37,7 +36,7 @@ def phrases_from_json(jsonfile):
                 notes,
             )
         )
-        names = list(map(lambda x: x["name"], names))
+        names = list(map(lambda x: x["name"] + ":" + str(round(x["duration"], 2)) + ":" + str(round(x["velocity"], 2)), names))
         names.sort()
         eigthNotes.append(DELIMITER.join(names))
 
@@ -49,13 +48,15 @@ def phrases_from_json(jsonfile):
     # Add number:
     phrasesWithIndex = list(
         map(
-            lambda phrase: [str(i + 1) + ":" + x for i, x in enumerate(phrase)], phrases
+            lambda phrase: [str(i + 1) + "," + x for i, x in enumerate(phrase)], phrases
         )
     )
+
     # Add start and end 'tag'
     phrasesWithIndex = list(
         map(lambda phrase: ["start"] + phrase + ["end"], phrasesWithIndex)
     )
+    
     return phrasesWithIndex
 
 
@@ -122,7 +123,7 @@ def play_song(music_file):
     pygame.mixer.music.set_volume(0.8)
     pygame.mixer.music.load(music_file)
     pygame.mixer.music.play()
-
+    
     try:
         # use the midi file object from memory
         pygame.mixer.music.load(music_file)
@@ -144,50 +145,66 @@ def create_song(music_file, phrases):
     track = 0
     channel = 0
     time = 0  # In beats
-    duration = 0.58  # In beats
+    duration = 0.58  # 0.58  # In beats
     tempo = 51  # In BPM
     volume = 100  # 0-127, as per the MIDI standard
 
     MyMIDI = MIDIFile(1)  # One track, defaults to format 1 (tempo track is created
     # automatically)
     MyMIDI.addTempo(track, time, tempo)
-
+    MyMIDI.addProgramChange(0, 0, 0, 0)
     phrasecount = 0
+
     for phrase in phrases:
         for notes in phrase:
-            index, notenames = notes.split(":")
-            notenames = notenames.split(",")
-            for n in notenames:
-                if n:
+            result = notes.split(",")
+            index = result[0]
+            note_list = result[1:]
+            for note in note_list:
+                if note:
+                    note_name, duration, velocity = note.split(":")
                     time = (int(index) * 0.31) + (32 * 0.31 * phrasecount)
                     MyMIDI.addNote(
-                        track, channel, int(noteNumber(n)), time, duration, volume
+                        track,
+                        channel,
+                        int(noteNumber(note_name)),
+                        time,
+                        float(duration),
+                        int(volume*float(velocity)),
                     )
-
         phrasecount += 1
 
     with open(music_file, "wb") as output_file:
         MyMIDI.writeFile(output_file)
 
 
-if __name__ == "__main__":
+def play_original():
     music_file = "new_song.mid"
     phrasesWithIndex = phrases_from_json("data/instructions.json")
     
     new_phrases = list()
     for phrase in phrasesWithIndex:
-        new_phrases.append(phrase[1:len(phrase)-1])
-    # for phrase in phrasesWithIndex:
-    #     print(" ".join(phrase))
+        new_phrases.append(phrase[1 : len(phrase) - 1])
 
-    # transitions = calc_transitions(phrasesWithIndex)
-    # calc_possible_phrases(transitions)
+    create_song(music_file, new_phrases)
 
-    # new_phrases = list()
-    # for _ in range(50):
-    #     new_phrases.append(walk(transitions))
+    play_song(music_file)
 
-    # print(new_phrases)
+if __name__ == "__main__":
+    play_original()
+    # sys.exit()
+    music_file = "new_song.mid"
+    phrasesWithIndex = phrases_from_json("data/instructions.json")
+
+    transitions = calc_transitions(phrasesWithIndex)
+    pprint(transitions)
+    calc_possible_phrases(transitions)
+
+    new_phrases = list()
+    for _ in range(20):
+        new_phrase = walk(transitions)
+        new_phrases.append(new_phrase)
+
     create_song(music_file, new_phrases)
 
     play_song(music_file)
